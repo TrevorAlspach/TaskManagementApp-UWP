@@ -1,0 +1,57 @@
+﻿<ContentDialog
+    x:Class="_4930_TaskManagementApp_UWP.Dialogs.EditAppointmentDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:_4930_TaskManagementApp_UWP.Dialogs"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="Edit Appointment"
+    PrimaryButtonText="OK"
+    SecondaryButtonText="Cancel"
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
+    SecondaryButtonClick="ContentDialog_SecondaryButtonClick">
+
+    <Grid MaxWidth="648">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="260"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0" Margin="0,0,20,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+            <TextBox Grid.Row="0" Header="Title" Text="{Binding Path=Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+            <TextBox Grid.Row="1" Header="Description" TextWrapping="Wrap" Text="{Binding Path=Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+            <ListBox Grid.Row="2" ItemsSource="{Binding atendees}" Height="60"></ListBox>
+            <Grid Grid.Row="3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="100"/>
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0" Header="Add Atendee" Text="{Binding Path=atendeeToAdd, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                <Button Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Content="+" VerticalContentAlignment="Stretch" FontSize="20" Margin="0,10,0,0" Click="Atendee_Click"></Button>
+            </Grid>
+
+        </Grid>
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+            <Viewbox Grid.Row="0">
+                <DatePicker Header="Date" SelectedDateChanged="DatePicker_SelectedDateChanged" Width="300" HorizontalAlignment="Center"></DatePicker>
+            </Viewbox>
+            <Viewbox Grid.Row="1">
+                <TimePicker Header="Start Time" SelectedTimeChanged="TimePicker_StartTimeChanged"></TimePicker>
+            </Viewbox>
+            <Viewbox Grid.Row="2">
+                <TimePicker Header="End Time" SelectedTimeChanged="TimePicker_EndTimeChanged"></TimePicker>
+            </Viewbox>
+        </Grid>
+    </Grid>
+</ContentDialog>

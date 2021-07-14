@@ -1,0 +1,247 @@
+﻿<Page
+    x:Class="_4930_TaskManagementApp_UWP.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:_4930_TaskManagementApp_UWP"
+    xmlns:formatter="using:_4930_TaskManagementApp_UWP.Services"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <!--****************************Begin ListBox Data Templates*******************************-->
+    <Page.Resources>
+        <formatter:DateStringFormatter x:Key="StringFormatterValueConverter"/>
+        <formatter:BooleantoStatusConverter x:Key="BooleantoStatusConverter"/>
+        <formatter:BooleantoPriorityConverter x:Key="BooleantoPriorityConverter"/>
+        <formatter:ShowPriorityConverter x:Key="ShowPriorityConverter"/>
+
+        <DataTemplate x:Key="selected_task">
+            <Grid MaxWidth="875">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions >
+                <TextBlock Margin="0,0,100,0" Grid.Row="0" Text="{Binding Path=Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" FontWeight="Bold" FontSize="16"></TextBlock>
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="400"/>
+                        <ColumnDefinition Width="400"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Margin="20" Grid.Column="0" Text="Description:" FontWeight="SemiBold"></TextBlock>
+                    <TextBlock Margin="105,20,0,0" Grid.Column="0" Text="{Binding Path=Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap"></TextBlock>
+                    <TextBlock Margin="20" Grid.Column="1" Text="Deadline:" FontWeight="SemiBold"></TextBlock>
+                    <TextBlock Margin="85,20,0,0" Grid.Column="1" Text="{Binding Path=DeadlineDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringFormatterValueConverter}, ConverterParameter=\{0:f\}}" TextWrapping="Wrap"></TextBlock>
+                    <TextBlock Margin="35,45,0,0" Grid.Column="1" Text="Status:" FontWeight="SemiBold"></TextBlock>
+                    <TextBlock Margin="85,45,0,0" Grid.Column="1" Text="{Binding Path=IsCompleted, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BooleantoStatusConverter}}" TextWrapping="Wrap"></TextBlock>
+                    <TextBlock Margin="27,69,0,0" Grid.Column="1" Text="Priority:" FontWeight="SemiBold"></TextBlock>
+                    <TextBlock Margin="85,69,0,0" Grid.Column="1" Text="{Binding Path=Priority, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BooleantoPriorityConverter}}" TextWrapping="Wrap"></TextBlock>
+                </Grid>
+                <Grid Grid.Row="2" Margin="60,50,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="150"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Margin="35,0,0,0" Grid.Column="0" Content="Delete" Click="Delete_Click" Background="#efefef" MinWidth="100" BorderBrush="Gray" BorderThickness=".5" CornerRadius="10" FontWeight="SemiLight"></Button>
+                    <Button Margin="35,0,0,0" Grid.Column="1" Content="Edit" Click="Edit_Click" Background="#efefef" MinWidth="100" BorderBrush="Gray" BorderThickness=".5" CornerRadius="10" FontWeight="SemiLight"></Button>
+                    <Button Margin="35,0,0,0" Grid.Column="2" Content="Complete" Click="Complete_Click" Background="#efefef" MinWidth="100" BorderBrush="Gray" BorderThickness=".5" CornerRadius="10" FontWeight="SemiLight"></Button>
+                    <Button Margin="35,0,0,0" Grid.Column="3" Content="Toggle Priority" Click="Priority_Click" Background="#efefef" MinWidth="100" BorderBrush="Gray" BorderThickness=".5" CornerRadius="10" FontWeight="SemiLight"></Button>
+                </Grid>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="selected_appointment">
+            <Grid Width="875">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions >
+                <TextBlock Margin="0,0,100,0" Grid.Row="0" Text="{Binding Path=Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" FontWeight="Bold" FontSize="16"></TextBlock>
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="400"/>
+                        <ColumnDefinition Width="400"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions >
+                        <TextBlock Margin="20" Grid.Row="0" Text="Description:" FontWeight="SemiBold"></TextBlock>
+                        <TextBlock Margin="105,20,0,0" Grid.Row="0" Text="{Binding Path=Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap"></TextBlock>
+                        <TextBlock Margin="32,20,0,0" Grid.Row="1" Text="Atendees:" FontWeight="SemiBold"></TextBlock>
+                        <ListView Margin="0,20,0,0" Grid.Row="1" ItemsSource="{Binding atendees}" Width="200" IsItemClickEnabled="False"></ListView>
+                    </Grid>
+
+                    <TextBlock Margin="15,20,0,0" Grid.Column="1" Text="Time:" FontWeight="SemiBold"></TextBlock>
+                    <TextBlock Margin="55,20,0,0" Grid.Column="1" Text="{Binding Path=StartTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringFormatterValueConverter}, ConverterParameter=\{0:f\}}" TextWrapping="Wrap"></TextBlock>
+                    <TextBlock Margin="298,18,0,0" Grid.Column="1" Text="-"></TextBlock>
+                    <TextBlock Margin="305,20,0,0" Grid.Column="1" Text="{Binding Path=EndTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringFormatterValueConverter}, ConverterParameter=\{0:t\}}" TextWrapping="Wrap"></TextBlock>
+                    <TextBlock Margin="15,45,0,0" Grid.Column="1" Text="Status:" FontWeight="SemiBold"></TextBlock>
+                    <TextBlock Margin="75,45,0,0" Grid.Column="1" Text="{Binding Path=IsCompleted, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BooleantoStatusConverter}}" TextWrapping="Wrap"></TextBlock>
+                    <TextBlock Margin="15,69,0,0" Grid.Column="1" Text="Priority:" FontWeight="SemiBold"></TextBlock>
+                    <TextBlock Margin="75,69,0,0" Grid.Column="1" Text="{Binding Path=Priority, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BooleantoPriorityConverter}}" TextWrapping="Wrap"></TextBlock>
+
+                </Grid>
+                <Grid Grid.Row="2" Margin="60,50,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="150"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Margin="35,0,0,15" Grid.Column="0" Content="Delete" Click="Delete_Click" MinWidth="100" Background="#efefef" BorderBrush="Gray" BorderThickness=".5" CornerRadius="10" FontWeight="SemiLight"></Button>
+                    <Button Margin="35,0,0,15" Grid.Column="1" Content="Edit" Click="Edit_Click" MinWidth="100" Background="#efefef" BorderBrush="Gray" BorderThickness=".5" CornerRadius="10" FontWeight="SemiLight"></Button>
+                    <Button Margin="35,0,0,15" Grid.Column="2" Content="Complete" Click="Complete_Click" MinWidth="100" Background="#efefef" BorderBrush="Gray" BorderThickness=".5" CornerRadius="10" FontWeight="SemiLight"></Button>
+                    <Button Margin="35,0,0,15" Grid.Column="3" Content="Toggle Priority" Click="Priority_Click" MinWidth="100" Background="#efefef" BorderBrush="Gray" BorderThickness=".5" CornerRadius="10" FontWeight="SemiLight"></Button>
+                </Grid>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="unselected_task">
+            <Grid MaxWidth="875">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="60"/>
+                    <ColumnDefinition Width="260"/>
+                    <ColumnDefinition Width="340"/>
+                    <ColumnDefinition Width="100"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="2" Text="{Binding Path = Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" TextWrapping="WrapWholeWords"></TextBlock>
+                <TextBlock Grid.Column="0" Text="Deadline:" VerticalAlignment="Center" FontSize="13"></TextBlock>
+                <TextBlock Grid.Column="1" Text="{Binding Path = DeadlineDate, Converter={StaticResource StringFormatterValueConverter}, ConverterParameter=\{0:f\}}" VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="13"></TextBlock>
+                <TextBlock Grid.Column="3" Text="{Binding Path = Priority, Converter={StaticResource ShowPriorityConverter}}" FontWeight="ExtraBold" FontSize="16" Foreground="LightSkyBlue" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="unselected_appointment">
+            <Grid MaxWidth="875">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition MinWidth="200" MaxWidth="220"/>
+                    <ColumnDefinition Width="7"/>
+                    <ColumnDefinition Width="110"/>
+                    <ColumnDefinition Width="345"/>
+                    <ColumnDefinition Width="100"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="3" Text="{Binding Path = Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" TextWrapping="WrapWholeWords"></TextBlock>
+                <TextBlock Grid.Column="0" Text="{Binding Path = StartTime, Converter={StaticResource StringFormatterValueConverter}, ConverterParameter=\{0:f\}}" VerticalAlignment="Center" HorizontalAlignment="Left"  FontSize="13"></TextBlock>
+                <TextBlock Grid.Column="1" Text="-" FontSize="13" VerticalAlignment="Center"></TextBlock>
+                <TextBlock Grid.Column="2" Text="{Binding Path= EndTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringFormatterValueConverter}, ConverterParameter=\{0:t\}}" VerticalAlignment="Center" FontSize="13"></TextBlock>
+                <TextBlock Grid.Column="4" Text="{Binding Path = Priority, Converter={StaticResource ShowPriorityConverter}}" FontWeight="ExtraBold" FontSize="16" Foreground="LightSkyBlue" Margin="0,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+
+            </Grid>
+        </DataTemplate>
+        
+        <!--used for initialization-->
+        <formatter:ListBoxDataTemplateSelector x:Key="ListBoxDataTemplateSelector" 
+                  TaskTemplate="{StaticResource unselected_task}"
+                  AppointmentTemplate="{StaticResource unselected_appointment}"/>
+
+    </Page.Resources>
+    <!--*************************************End ListBox Data Templates**************************************-->
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="150"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid Background="#efefef">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="120"/>
+            </Grid.ColumnDefinitions>
+            <TextBox Background="White" x:Name="queryTextBox" Grid.Column="1" Height="45" Width="400" VerticalAlignment="Center" HorizontalAlignment="Right" TextAlignment="Start" PlaceholderText="Search..." FontSize="16" Text="{Binding Path=QueryText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderThickness="1" CornerRadius="5"></TextBox>
+            <Button Grid.Column="2" Width="70" Height="45" VerticalAlignment="Center" HorizontalAlignment="Left" Content="Search" Click="Search_Click" Background="LightSkyBlue" BorderBrush="Gray" BorderThickness=".5" CornerRadius="5" FontWeight="SemiLight"></Button>
+        </Grid>
+   
+    <Grid Background="#efefef" Margin="0,0,0,0" Grid.Row="1">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="800*" MinWidth="800"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="310"/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0" Margin="10,0,0,150" BorderBrush="LightGray" BorderThickness="0,0,1,0" Background="white" CornerRadius="5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0" Margin="0,20,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50"/>
+                </Grid.RowDefinitions>
+                
+            </Grid>
+            <Grid Grid.Row="1" Margin="0,0,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="80"/>
+                    <RowDefinition Height="20"/>
+                </Grid.RowDefinitions>
+                <Button Grid.Row="3" Height="40" VerticalAlignment="Center" HorizontalAlignment="Center" Width="230" Content="Load List" Click="LoadList_Click" Background="#efefef" BorderBrush="Gray" BorderThickness=".5" CornerRadius="5" Margin="0,0,0,0" FontWeight="SemiLight"></Button>
+                <Button Grid.Row="4"  Height="40" VerticalAlignment="Center" HorizontalAlignment="Center" Width="230" Content="Save Current List" Click="SaveList_Click" Background="#efefef" BorderBrush="Gray" BorderThickness=".5" CornerRadius="5" Margin="0,0,0,10" FontWeight="SemiLight"></Button>
+                <CheckBox Grid.Row="7" Content="Show Completed Tasks" HorizontalAlignment="Center" Checked="ShowCompleted_Check" Unchecked="ShowCompleted_Uncheck" IsChecked="{Binding Path=showCompleted, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontWeight="SemiLight"></CheckBox>
+                <Button Grid.Row="0" Height="40" VerticalAlignment="Center" HorizontalAlignment="Center" Width="230" Content="Add Task" Click="AddTask_Click" Background="LightSkyBlue" BorderBrush="Gray" BorderThickness=".5" CornerRadius="5" FontWeight="SemiLight"></Button>
+                <Button Grid.Row="1" Height="40" VerticalAlignment="Center" HorizontalAlignment="Center" Width="230" Content="Add Appointment" Click="AddAppointment_Click" Background="LightSkyBlue" BorderBrush="Gray" BorderThickness=".5" CornerRadius="5" Margin="0,0,0,10" FontWeight="SemiLight"></Button>
+                <Button Grid.Row="5" Height="40" VerticalAlignment="Center" HorizontalAlignment="Center" Width="230" Content="Create List" Click="CreateList_Click" Background="LightSkyBlue" BorderBrush="Gray" BorderThickness=".5" CornerRadius="5" Margin="0,10,0,0" FontWeight="SemiLight"></Button>
+                <Button Grid.Row="6" Height="40" VerticalAlignment="Center" HorizontalAlignment="Center" Width="230" Content="Remove List" Click="RemoveList_Click" Background="LightSkyBlue" BorderBrush="Gray" BorderThickness=".5" CornerRadius="5" FontWeight="SemiLight"></Button> 
+            </Grid>
+        </Grid>
+        <Grid Grid.Column="2" Background="#efefef">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="540"/>
+                    <RowDefinition Height="100"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                
+                <ListBox Grid.Row="0" Margin="0,12,0,0" ItemsSource="{Binding Path=CurrentWindow}"
+                 SelectedItem="{Binding Path=SelectedTask, Mode=TwoWay}" SelectionChanged="Item_Selected_Changed"
+                 ItemTemplateSelector="{StaticResource ListBoxDataTemplateSelector}" Background="#efefef">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Background" Value="White"/>
+                        <Setter Property="Margin" Value="8"/>
+                        <Setter Property="MinHeight" Value="75"/>
+                        <Setter Property="Width" Value="875"/>
+                        <Setter Property="CornerRadius" Value="5"/>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+            </ListBox>
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" Width="70" HorizontalAlignment="Right" Content="Previous" Click="Previous_Click" Background="White" BorderBrush="Gray" BorderThickness=".5" CornerRadius="5" Margin="0,0,15,0" FontWeight="SemiLight"></Button>
+                    <Button Grid.Column="4" Width="70" HorizontalAlignment="Left" Content="Next" Click="Next_Click" Background="White" BorderBrush="Gray" BorderThickness=".5" CornerRadius="5" Margin="15,0,0,0" FontWeight="SemiLight"></Button>
+                <TextBlock Grid.Column="1" Text="{Binding Path = PageNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                <TextBlock Grid.Column="2" Text="/" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                <TextBlock Grid.Column="3" Text="{Binding Path = PageCount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+            </Grid>
+        </Grid>
+        <Grid Grid.Column="4" Margin="0,0,10,150" BorderBrush="LightGray" BorderThickness="1,0,0,0" Background="White" CornerRadius="5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Border Grid.Row="0" BorderBrush="LightGray" BorderThickness="0,0,0,1" Margin="10,0,10,0">
+                <TextBlock Grid.Row ="0" Text="Lists" FontWeight="SemiLight" FontSize="18" VerticalAlignment="Center" Margin="10,0,0,0"></TextBlock>
+            </Border>
+            <ListView Grid.Row="1" x:Name="LVAllLists" ItemsSource="{Binding Path=AllLists }" SelectionChanged="List_Selected_Changed" ItemClick="List_Click" IsItemClickEnabled="True" Margin="0,5,0,0"></ListView>
+            
+        </Grid>
+    </Grid>
+    </Grid>
+</Page>
