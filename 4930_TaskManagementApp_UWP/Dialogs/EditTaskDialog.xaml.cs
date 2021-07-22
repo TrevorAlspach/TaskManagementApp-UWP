@@ -58,6 +58,10 @@ namespace _4930_TaskManagementApp_UWP.Dialogs
 
         private void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
+            var MainVM = (listContext as MainViewModel);
+            var mapper = new AutoMapper.Mapper(MainVM.Mapper.config);
+            var task = mapper.Map<TaskVM, Task>(DataContext as TaskVM);
+            MainVM.AddItem(task);
         }
 
         private void ContentDialog_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)

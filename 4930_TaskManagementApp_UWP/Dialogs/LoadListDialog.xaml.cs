@@ -35,8 +35,7 @@ namespace _4930_TaskManagementApp_UWP.Dialogs
 
         private async void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            //var AllLists = (listContext as MainViewModel).AllLists;
-            await (listContext as MainViewModel).LoadList(localfolder.selectedName);
+            //await (listContext as MainViewModel).LoadList(localfolder.selectedName);
         }
 
         private void ContentDialog_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)

@@ -55,9 +55,9 @@ namespace _4930_TaskManagementApp_UWP.ViewModels
             set { SetValue(DescriptionProperty, value); }
         }
 
+        public Guid Id { get; set; }
+
         public abstract override string ToString();
-
-
 
     }
 }

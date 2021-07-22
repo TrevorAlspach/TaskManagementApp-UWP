@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Library.TaskManagement;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -51,6 +52,18 @@ namespace _4930_TaskManagementApp_UWP.ViewModels
             IsCompleted = false;
             Priority = false;
             atendees = new ObservableCollection<string>();
+        }
+
+        public AppointmentVM(Appointment a)
+        {
+            Name = a.Name;
+            Description = a.Description;
+            IsCompleted = a.IsCompleted;
+            Priority = a.Priority;
+            Id = a.Id;
+            StartTime = a.StartTime;
+            EndTime = a.EndTime;
+            atendees = new ObservableCollection<string>(a.Atendees);
         }
 
         public override string ToString()

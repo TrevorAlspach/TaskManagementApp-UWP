@@ -41,6 +41,17 @@ namespace _4930_TaskManagementApp_UWP.ViewModels
             Priority = false;
         }
 
+        public TaskVM(Library.TaskManagement.Task task)
+        {
+            Name = task.Name;
+            Description = task.Description;
+            IsCompleted = task.IsCompleted;
+            Priority = task.Priority;
+            Id = task.Id;
+            DeadlineDate = task.DeadlineDate;
+            DeadlineTime = task.DeadlineTime;
+        }
+
 
         public override string ToString()
         {

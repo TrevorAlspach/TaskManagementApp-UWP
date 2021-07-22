@@ -31,9 +31,12 @@ namespace _4930_TaskManagementApp_UWP.Dialogs
             this.listContext = listContext;
         }
 
-        private void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        private async void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            (listContext as MainViewModel).AllLists.Add(new NamedList<ItemVM>(newListName));
+            //(listContext as MainViewModel).AllLists.Add(new NamedList<ItemVM>(newListName));
+            //Add list here using API
+
+            (listContext as MainViewModel).AddList(newListName);
         }
 
         private void ContentDialog_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)

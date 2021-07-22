@@ -9,6 +9,10 @@ using System.Threading.Tasks;
 using Library.TaskManagement;
 using _4930_TaskManagementApp_UWP.Services;
 using Windows.UI.Xaml;
+using _4930_TaskManagementApp_UWP.WebServices;
+using NSwag.Collections;
+using AutoMapper;
+using _4930_TaskManagementApp_UWP.Utilities;
 
 namespace _4930_TaskManagementApp_UWP.ViewModels
 {
@@ -35,26 +39,37 @@ namespace _4930_TaskManagementApp_UWP.ViewModels
         {
             get { return (int)GetValue(PageNumberProperty); }
             set { SetValue(PageNumberProperty, value); }
-        }
-        private int currentIndex;                                           //index to keep track of which list in AllLists needs to be accessed
+        }                                         
         public bool showCompleted { get; set; }                             //bound to checkbox, when false will exclude completed tasks
 
         public ItemVM SelectedTask { get; set; }
-        public ObservableCollection<NamedList<ItemVM>> AllLists { get; set; } //Holds all currently loaded lists 
-        public List<ItemVM> CurrentTaskList { get; set; }                     //populated with the ItemVMs of the currently selected list
+        public ObservableDictionary<string, Guid> AllLists { get; set; }
+        public NamedList<ItemVM> CurrentTaskList { get; set; }                     //populated with the ItemVMs of the currently selected list
         public ListNavigator<ItemVM> Navigator;                               //Reformatted navigator which returns observable collection<T> instead of dictionary
         public ObservableCollection<ItemVM> CurrentWindow { get; set; }       //The collection of ItemVMs which are currently displayed in view
-        private LocalFolderAccess localfolder = LocalFolderAccess.GetInstance;
+        //private LocalFolderAccess localfolder = LocalFolderAccess.GetInstance;
+        public ItemToItemVMMapper Mapper = new ItemToItemVMMapper();
+        Mapper mapper { get; set; }
+        private TaskManagementAPIService taskAPI = new TaskManagementAPIService();
 
         public MainViewModel()
         {
-            AllLists = new ObservableCollection<NamedList<ItemVM>>();
-            CurrentTaskList = new List<ItemVM>();
+            AllLists = new ObservableDictionary<string, Guid>();
+            CurrentTaskList = new NamedList<ItemVM>();
             CurrentWindow = new ObservableCollection<ItemVM>();
             Navigator = new ListNavigator<ItemVM>(CurrentTaskList, CurrentWindow);
             CurrentWindow = Navigator.GoToFirstPage();
+            mapper = new Mapper(Mapper.config);
             PageNumber = 1;
             PageCount = 1;
+            InitializeLists();
+        }
+
+        public async void InitializeLists()
+        {
+            AllLists.Clear();
+            var LoadedLists = await TaskManagementAPIService.LoadAllLists();
+            AllLists.AddRange(LoadedLists);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -63,52 +78,64 @@ namespace _4930_TaskManagementApp_UWP.ViewModels
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public void AddTask(ItemVM ItemVM)
+        public async System.Threading.Tasks.Task AddItem(Item item)
         {
-            try
+            if (item is Library.TaskManagement.Task)
             {
-                CurrentTaskList.Add(ItemVM);
-                AllLists.ElementAt(currentIndex).list.Add(ItemVM);
-                Refresh();
+                await taskAPI.AddTask(item as Library.TaskManagement.Task, CurrentTaskList.Id);
             }
-            catch(ArgumentOutOfRangeException) { }
-        } //Adds task/appt to current view + AllLists
+            if (item is Appointment)
+            {
+                await taskAPI.AddAppointment(item as Appointment, CurrentTaskList.Id);
+            }
+             Refresh();
+        }
 
-        public void Remove()
+        public async void RemoveItem()
         {
-            CurrentTaskList.Remove(SelectedTask);
-            AllLists.ElementAt(currentIndex).list.Remove(SelectedTask);
+            var GuidToDelete = SelectedTask.Id;
+            await taskAPI.RemoveItem(GuidToDelete, CurrentTaskList.Id);
             Refresh();
-        }          //Removes task from current view + AllLists
+        }
 
         public void Complete()
         {
             SelectedTask.IsCompleted = true;
-            if (!showCompleted)
-            {
-                RemoveCompleted();
-            }
+            AddItem(mapper.Map<ItemVM, Item>(SelectedTask));
         }                //Completes currently selected task
 
-        public void TogglePriority()
+        public async void TogglePriority()
         {
             SelectedTask.Priority = !SelectedTask.Priority;
+            await AddItem(mapper.Map<ItemVM, Item>(SelectedTask));
             Refresh();
-            
         }          //toggles priority bool on selected task
 
-        public void Refresh()
+        public async void Refresh()
         {
+            NamedList<Item> list;
+            if (showCompleted)
+            {
+                list = await taskAPI.GetList(CurrentTaskList.Id);
+            } else
+            {
+                list = await taskAPI.GetListIncomplete(CurrentTaskList.Id);
+            }
+            CurrentWindow.Clear();
+            CurrentTaskList.list.Clear();
+
+            
+            var itemVMs = mapper.Map<List<Item>, List<ItemVM>>(list.list);
+            CurrentTaskList.list.AddRange(itemVMs);
             try
             {
-                SortListByPriority();
                 CurrentWindow = Navigator.GetCurrentPage();
                 PageCount = calculateTotalPageCount();
             }
             catch (PageFaultException) { 
                 Navigator.GoToFirstPage();
                 PageCount -= 1;
-                PageNumber -= 1;
+                PageNumber = 1;
             }
         }                 //Reloads current window, used when currenttasklist is modified or changed
 
@@ -132,7 +159,7 @@ namespace _4930_TaskManagementApp_UWP.ViewModels
             catch (PageFaultException) {}
         }
 
-        public async System.Threading.Tasks.Task LoadList(string filename)
+        /*public System.Threading.Tasks.Task LoadList(string filename)
         {
             await localfolder.LoadListfromJSON(AllLists, filename);
             Refresh();
@@ -141,11 +168,11 @@ namespace _4930_TaskManagementApp_UWP.ViewModels
         public async System.Threading.Tasks.Task SaveList(string filename)
         {
            await localfolder.SaveListasJSON(CurrentTaskList, filename);
-        }    //saves current list to localfolder as filename
+        }    //saves current list to localfolder as filename*/
 
         public int calculateTotalPageCount()
         {
-            int taskCount = CurrentTaskList.Count;
+            int taskCount = CurrentTaskList.list.Count;
             if (taskCount == 0)
             {
                 return 1;
@@ -161,92 +188,58 @@ namespace _4930_TaskManagementApp_UWP.ViewModels
             
         }
 
-        public void List_Changed(NamedList<ItemVM> newNamedList)
+        public async void List_Changed(Guid newListGuid)
         {
-            CurrentTaskList.Clear();
-            CurrentWindow.Clear();
-            
-            if (newNamedList != null)
+           if (newListGuid != Guid.Empty)
             {
-                CurrentTaskList.AddRange(newNamedList.list);
-                SortListByPriority();
-                currentIndex = AllLists.IndexOf(newNamedList);
-
-                if (!showCompleted)
+                CurrentTaskList.list.Clear();
+                CurrentWindow.Clear();
+                NamedList<Item> list;
+                if (showCompleted)
                 {
-                    RemoveCompleted();
+                    list = await taskAPI.GetList(newListGuid);
                 }
+                else
+                {
+                    list = await taskAPI.GetListIncomplete(newListGuid);
+                }
+                var mapper = new Mapper(Mapper.config);
+                var itemVMs = mapper.Map<List<Item>, List<ItemVM>>(list.list);
+                CurrentTaskList.list.AddRange(itemVMs);
+                CurrentTaskList.Id = list.Id;
+                CurrentTaskList.name = list.name;
+                Refresh();
             }
-            Refresh();
+           
         }               //Repopulates currenttasklist and currentwindow when selected list changed
 
-
-        public void RemoveList(NamedList<ItemVM> selectedList)
+        public async void AddList(string name)
         {
-            AllLists.Remove(selectedList);
+            await taskAPI.AddList(name);
+            InitializeLists();
         }
 
-        public void Search(string query)
+        public async void RemoveList(KeyValuePair<string, Guid> listToRemove)
         {
-            CurrentTaskList.Clear();
-            CurrentWindow.Clear();
-            foreach (NamedList<ItemVM> namedlist in AllLists)
+            if (listToRemove.Value != Guid.Empty)
             {
-                CurrentTaskList.AddRange((from ItemVM in namedlist.list
-                                          where ItemVM.Name.Contains(query, StringComparison.InvariantCultureIgnoreCase) || ItemVM.Description.Contains(query, StringComparison.InvariantCultureIgnoreCase)
-                                          select ItemVM).ToList());
-                //Add first linq query results to utility list to show
-
-                var appointments = from ItemVM in namedlist.list where (ItemVM is AppointmentVM && !CurrentTaskList.Contains(ItemVM)) select ItemVM;
-                //select those ItemVMs which are appointments and not already in the list
-
-                foreach (AppointmentVM appointment in appointments)
-                {
-                    if ((from atendee in appointment.atendees where atendee.Contains(query, StringComparison.InvariantCultureIgnoreCase) select atendee).Any())
-                        CurrentTaskList.Add(appointment);
-                    //add those appointments where atendees list contains query string
-                }
+                await taskAPI.RemoveList(listToRemove.Value);
+                AllLists.Remove(listToRemove.Key);
             }
-            Refresh();
+            CurrentWindow.Clear();
+            InitializeLists();
+        }
+
+        public async void Search(string query)
+        {
+            var searchResults = await taskAPI.Search(query);
+            CurrentTaskList.list.Clear();
+            CurrentWindow.Clear();
+            var mapper = new Mapper(Mapper.config);
+            var itemVMs = mapper.Map<List<Item>, List<ItemVM>>(searchResults);
+            CurrentTaskList.list.AddRange(itemVMs);
+            CurrentWindow = Navigator.GetCurrentPage();
+            PageCount = calculateTotalPageCount();
         }                                    //Queries every open list for ItemVMs that contain string, results populate in current window
-
-        public void RemoveCompleted()
-        {
-            List<ItemVM> incompleteList = new List<ItemVM>();
-            foreach(ItemVM ItemVM in CurrentTaskList)
-            {
-                if (!ItemVM.IsCompleted)
-                {
-                    incompleteList.Add(ItemVM);
-                }
-            }
-            CurrentWindow.Clear();
-            CurrentTaskList.Clear();
-            CurrentTaskList.AddRange(incompleteList);
-            Refresh();
-        }                                        //Removes all completed tasks from current window + currenttasklist
-
-        public void AddCompleted()
-        {
-            try
-            {
-                CurrentWindow.Clear();
-                CurrentTaskList.Clear();
-
-                CurrentTaskList.AddRange(AllLists.ElementAt(currentIndex).list);
-                Refresh();
-            } catch (ArgumentOutOfRangeException) { }
-        }   //Returns completed tasks to currentwindow + currenttasklist
-
-        private void SortListByPriority()
-        {
-            if (CurrentTaskList.Count != 0)
-            {
-                List<ItemVM> orderedList = CurrentTaskList.OrderByDescending(ItemVM => ItemVM.Priority).ToList();
-                CurrentTaskList.Clear();
-                CurrentTaskList.AddRange(orderedList);
-            }
-            
-        }
     }
 }

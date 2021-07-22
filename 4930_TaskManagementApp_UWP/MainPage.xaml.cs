@@ -72,14 +72,34 @@ namespace _4930_TaskManagementApp_UWP
         private void List_Selected_Changed(object sender, SelectionChangedEventArgs e)
         {
             var listView = (sender as ListView);
-            var newList = listView.SelectedItem as NamedList<ItemVM>;
-            (DataContext as MainViewModel).List_Changed(newList);
+            Guid newListGuid = Guid.Empty;
+            if (listView.SelectedItem != null)
+            {
+                if ((DataContext as MainViewModel).AllLists.TryGetValue((string)listView.SelectedItem, out Guid value))
+                {
+                    newListGuid = value;
+                }
+            }
+           
+            if (newListGuid != Guid.Empty){
+                (DataContext as MainViewModel).List_Changed(newListGuid);
+            }
+            
         }
         private void List_Click(object sender, ItemClickEventArgs e)
         {
-            var listView = (sender as ListView);
-            var newList = listView.SelectedItem as NamedList<ItemVM>;
-            (DataContext as MainViewModel).List_Changed(newList);
+           /* var listView = (sender as ListView);
+            Guid newListGuid = Guid.Empty;
+
+            if ((DataContext as MainViewModel).AllLists.TryGetValue((string)listView.SelectedItem, out Guid value))
+            {
+                newListGuid = value;
+            }
+            if (newListGuid != Guid.Empty)
+            {
+                (DataContext as MainViewModel).List_Changed(newListGuid);
+            }*/
+
         }
 
         private async void AddTask_Click(object sender, RoutedEventArgs e)
@@ -96,19 +116,19 @@ namespace _4930_TaskManagementApp_UWP
 
         private void Delete_Click(object sender, RoutedEventArgs e)
         {
-            (DataContext as MainViewModel).Remove();
+            (DataContext as MainViewModel).RemoveItem();
         }
 
         private async void Edit_Click(object sender, RoutedEventArgs e)
         {
             if ((DataContext as MainViewModel).SelectedTask is TaskVM)
             {
-                var editTaskDiag = new EditTaskDialog((DataContext as MainViewModel).CurrentTaskList, DataContext);
+                var editTaskDiag = new EditTaskDialog((DataContext as MainViewModel).CurrentTaskList.list, DataContext);
                 await editTaskDiag.ShowAsync();
             }
             else if ((DataContext as MainViewModel).SelectedTask is AppointmentVM)
             {
-                var editApptDiag = new EditAppointmentDialog((DataContext as MainViewModel).CurrentTaskList, DataContext);
+                var editApptDiag = new EditAppointmentDialog((DataContext as MainViewModel).CurrentTaskList.list, DataContext);
                 await editApptDiag.ShowAsync();
             }
         }
@@ -153,8 +173,10 @@ namespace _4930_TaskManagementApp_UWP
         private void RemoveList_Click(object sender, RoutedEventArgs e)
         {
             var LVAllLists = (this.FindName("LVAllLists") as ListView);
-            var selectedList = LVAllLists.SelectedItem as NamedList<ItemVM>;
-            (DataContext as MainViewModel).RemoveList(selectedList);
+            var selectedName = LVAllLists.SelectedItem as string;
+            //var selectedList = (KeyValuePair<string, Guid>)LVAllLists.SelectedItem;
+            var ListId = (DataContext as MainViewModel).AllLists.GetValueOrDefault(selectedName);
+            (DataContext as MainViewModel).RemoveList(new KeyValuePair<string, Guid>(selectedName, ListId));
         }
 
         private void Search_Click(object sender, RoutedEventArgs e)
@@ -166,12 +188,12 @@ namespace _4930_TaskManagementApp_UWP
 
         private void ShowCompleted_Check(object sender, RoutedEventArgs e)
         {
-            (DataContext as MainViewModel).AddCompleted();
+            (DataContext as MainViewModel).Refresh();
         }
 
         private void ShowCompleted_Uncheck(object sender, RoutedEventArgs e)
         {
-            (DataContext as MainViewModel).RemoveCompleted();
+            (DataContext as MainViewModel).Refresh();
         }
     }
 }

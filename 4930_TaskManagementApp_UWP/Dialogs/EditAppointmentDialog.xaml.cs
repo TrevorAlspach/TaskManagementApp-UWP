@@ -33,10 +33,10 @@ namespace _4930_TaskManagementApp_UWP.Dialogs
 
         private void DatePicker_SelectedDateChanged(DatePicker sender, DatePickerSelectedValueChangedEventArgs args)
         {
-            var appt = (DataContext as AppointmentVM);
+            var apptVM = (DataContext as AppointmentVM);
 
-            appt.StartTime = (DateTimeOffset)args.NewDate;
-            appt.EndTime = (DateTimeOffset)args.NewDate;
+            apptVM.StartTime = (DateTimeOffset)args.NewDate;
+            apptVM.EndTime = (DateTimeOffset)args.NewDate;
 
         }
 
@@ -52,20 +52,25 @@ namespace _4930_TaskManagementApp_UWP.Dialogs
 
         private void Atendee_Click(object sender, RoutedEventArgs e)
         {
-            var appt = (DataContext as AppointmentVM);
-            appt.atendees.Add(appt.atendeeToAdd);
+            var apptVM = (DataContext as AppointmentVM);
+            apptVM.atendees.Add(apptVM.atendeeToAdd);
 
         }
 
-        private void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        private async void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            var appt = (DataContext as AppointmentVM);
+            var apptVM = (DataContext as AppointmentVM);
 
-            appt.StartTime = new DateTimeOffset(appt.StartTime.Year, appt.StartTime.Month, appt.StartTime.Day,
-            localStartTime.Hours, localStartTime.Minutes, localStartTime.Seconds, new TimeSpan(0));
+            apptVM.StartTime = new DateTimeOffset(apptVM.StartTime.Year, apptVM.StartTime.Month, apptVM.StartTime.Day,
+            localStartTime.Hours, localStartTime.Minutes, localStartTime.Seconds, new TimeSpan(-4,0,0));
 
-            appt.EndTime = new DateTimeOffset(appt.EndTime.Year, appt.EndTime.Month, appt.EndTime.Day,
-            localEndTime.Hours, localEndTime.Minutes, localEndTime.Seconds, new TimeSpan(0));
+            apptVM.EndTime = new DateTimeOffset(apptVM.EndTime.Year, apptVM.EndTime.Month, apptVM.EndTime.Day,
+            localEndTime.Hours, localEndTime.Minutes, localEndTime.Seconds, new TimeSpan(-4,0,0));
+
+            var MainVM = (listContext as MainViewModel);
+            var mapper = new AutoMapper.Mapper(MainVM.Mapper.config);
+            var appt = mapper.Map<AppointmentVM, Appointment>(DataContext as AppointmentVM);
+            await MainVM.AddItem(appt);
         }
 
         private void ContentDialog_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)

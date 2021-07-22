@@ -35,7 +35,7 @@ namespace _4930_TaskManagementApp_UWP.Dialogs
 
         private async void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            await (listContext as MainViewModel).SaveList(nameToSave);
+            //await (listContext as MainViewModel).SaveList(nameToSave);
         }
 
         private void ContentDialog_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
