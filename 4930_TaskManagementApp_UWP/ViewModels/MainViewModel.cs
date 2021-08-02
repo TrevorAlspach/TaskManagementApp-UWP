@@ -232,14 +232,19 @@ namespace _4930_TaskManagementApp_UWP.ViewModels
 
         public async void Search(string query)
         {
-            var searchResults = await taskAPI.Search(query);
-            CurrentTaskList.list.Clear();
-            CurrentWindow.Clear();
-            var mapper = new Mapper(Mapper.config);
-            var itemVMs = mapper.Map<List<Item>, List<ItemVM>>(searchResults);
-            CurrentTaskList.list.AddRange(itemVMs);
-            CurrentWindow = Navigator.GetCurrentPage();
-            PageCount = calculateTotalPageCount();
-        }                                    //Queries every open list for ItemVMs that contain string, results populate in current window
+            if (query is null || query.Equals(string.Empty))
+            { }
+            else
+            {
+                var searchResults = await taskAPI.Search(query);
+                CurrentTaskList.list.Clear();
+                CurrentWindow.Clear();
+                var mapper = new Mapper(Mapper.config);
+                var itemVMs = mapper.Map<List<Item>, List<ItemVM>>(searchResults);
+                CurrentTaskList.list.AddRange(itemVMs);
+                CurrentWindow = Navigator.GetCurrentPage();
+                PageCount = calculateTotalPageCount();
+            }
+        }                                   //Queries every open list for ItemVMs that contain string, results populate in current window
     }
 }
