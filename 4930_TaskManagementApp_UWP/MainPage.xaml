@@ -164,7 +164,7 @@
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="310"/>
         </Grid.ColumnDefinitions>
-        <Grid Grid.Column="0" Margin="10,0,0,150" BorderBrush="LightGray" BorderThickness="0,0,1,0" Background="white" CornerRadius="5">
+        <Grid Grid.Column="0" Margin="10,0,0,50" BorderBrush="LightGray" BorderThickness="0,0,1,0" Background="white" CornerRadius="5">
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"/>
                 <RowDefinition/>
@@ -198,12 +198,12 @@
         </Grid>
         <Grid Grid.Column="2" Background="#efefef">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="540"/>
+                    <RowDefinition Height="400"/>
                     <RowDefinition Height="100"/>
                     <RowDefinition/>
                 </Grid.RowDefinitions>
                 
-                <ListBox Grid.Row="0" Margin="0,12,0,0" ItemsSource="{Binding Path=CurrentWindow}"
+                <ListBox Grid.Row="0" Margin="0,0,0,0" ItemsSource="{Binding Path=CurrentWindow}"
                  SelectedItem="{Binding Path=SelectedTask, Mode=TwoWay}" SelectionChanged="Item_Selected_Changed"
                  ItemTemplateSelector="{StaticResource ListBoxDataTemplateSelector}" Background="#efefef">
                 <ListBox.ItemContainerStyle>
