@@ -139,20 +139,23 @@
                   TaskTemplate="{StaticResource unselected_task}"
                   AppointmentTemplate="{StaticResource unselected_appointment}"/>
 
+
     </Page.Resources>
     <!--*************************************End ListBox Data Templates**************************************-->
-    <Grid>
+    <Grid Background="#efefef">
         <Grid.RowDefinitions>
             <RowDefinition Height="150"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <Grid Background="#efefef">
+        <Grid Background="White" Margin="15" CornerRadius="5">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
                 <ColumnDefinition Width="120"/>
             </Grid.ColumnDefinitions>
-            <TextBox Background="White" x:Name="queryTextBox" Grid.Column="1" Height="45" Width="400" VerticalAlignment="Center" HorizontalAlignment="Right" TextAlignment="Start" PlaceholderText="Search..." FontSize="16" Text="{Binding Path=QueryText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderThickness="1" CornerRadius="5"></TextBox>
+            <TextBlock  Margin="20,0,0,0" Grid.Column="0" Text="Hello" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="30" FontWeight="SemiLight"></TextBlock>
+            <TextBlock Margin="95,0,0,0" Grid.Column="0" Text="{Binding Path=WindowsUserName}" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="30" FontWeight="SemiLight"></TextBlock>
+            <TextBox Background="#efefef" x:Name="queryTextBox" Grid.Column="1" Height="45" Width="400" VerticalAlignment="Center" HorizontalAlignment="Right" TextAlignment="Start" PlaceholderText="Search..." FontSize="16" Text="{Binding Path=QueryText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderThickness="1" CornerRadius="5"></TextBox>
             <Button Grid.Column="2" Width="70" Height="45" VerticalAlignment="Center" HorizontalAlignment="Left" Content="Search" Click="Search_Click" Background="LightSkyBlue" BorderBrush="Gray" BorderThickness=".5" CornerRadius="5" FontWeight="SemiLight"></Button>
         </Grid>
    
@@ -164,7 +167,7 @@
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="310"/>
         </Grid.ColumnDefinitions>
-        <Grid Grid.Column="0" Margin="10,0,0,50" BorderBrush="LightGray" BorderThickness="0,0,1,0" Background="white" CornerRadius="5">
+        <Grid Grid.Column="0" Margin="10,0,0,150" BorderBrush="LightGray" BorderThickness="0,0,1,0" Background="white" CornerRadius="5">
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"/>
                 <RowDefinition/>
@@ -207,13 +210,13 @@
                  SelectedItem="{Binding Path=SelectedTask, Mode=TwoWay}" SelectionChanged="Item_Selected_Changed"
                  ItemTemplateSelector="{StaticResource ListBoxDataTemplateSelector}" Background="#efefef">
                 <ListBox.ItemContainerStyle>
-                    <Style TargetType="ListBoxItem">
-                        <Setter Property="Background" Value="White"/>
-                        <Setter Property="Margin" Value="8"/>
-                        <Setter Property="MinHeight" Value="75"/>
-                        <Setter Property="Width" Value="875"/>
-                        <Setter Property="CornerRadius" Value="5"/>
-                    </Style>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="Background" Value="White"/>
+                            <Setter Property="Margin" Value="8"/>
+                            <Setter Property="MinHeight" Value="75"/>
+                            <Setter Property="Width" Value="875"/>
+                            <Setter Property="CornerRadius" Value="5"/>
+                        </Style>
                 </ListBox.ItemContainerStyle>
             </ListBox>
             <Grid Grid.Row="1">

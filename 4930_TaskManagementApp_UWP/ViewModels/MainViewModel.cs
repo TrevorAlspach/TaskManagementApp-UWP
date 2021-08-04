@@ -13,6 +13,7 @@ using _4930_TaskManagementApp_UWP.WebServices;
 using NSwag.Collections;
 using AutoMapper;
 using _4930_TaskManagementApp_UWP.Utilities;
+using System.Security.Principal;
 
 namespace _4930_TaskManagementApp_UWP.ViewModels
 {
@@ -41,6 +42,7 @@ namespace _4930_TaskManagementApp_UWP.ViewModels
             set { SetValue(PageNumberProperty, value); }
         }                                         
         public bool showCompleted { get; set; }                             //bound to checkbox, when false will exclude completed tasks
+        public string WindowsUserName { get; set; }
 
         public ItemVM SelectedTask { get; set; }
         public ObservableDictionary<string, Guid> AllLists { get; set; }
@@ -63,6 +65,7 @@ namespace _4930_TaskManagementApp_UWP.ViewModels
             PageNumber = 1;
             PageCount = 1;
             InitializeLists();
+            WindowsUserName = WindowsIdentity.GetCurrent().Name.Split('\\').Last();
         }
 
         public async void InitializeLists()
@@ -98,10 +101,10 @@ namespace _4930_TaskManagementApp_UWP.ViewModels
             Refresh();
         }
 
-        public void Complete()
+        public async void Complete()
         {
             SelectedTask.IsCompleted = true;
-            AddItem(mapper.Map<ItemVM, Item>(SelectedTask));
+            await AddItem(mapper.Map<ItemVM, Item>(SelectedTask));
         }                //Completes currently selected task
 
         public async void TogglePriority()
